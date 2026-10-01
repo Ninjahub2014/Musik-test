@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Musik-Quiz Klasse 7</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f4f6fb;margin:0;color:#172033}
+main{max-width:760px;margin:auto;padding:18px}.card{background:white;border-radius:18px;padding:22px;box-shadow:0 4px 18px #0001;margin:12px 0}
+h1{margin-top:0}.bar{height:10px;background:#ddd;border-radius:8px;overflow:hidden}.bar i{display:block;height:100%;background:#4b6cff;width:0}
+button{border:0;border-radius:12px;padding:12px 16px;margin:6px;font-size:16px;background:#e8ecff}button.primary{background:#4b6cff;color:white}
+.choice.selected,.note.selected{background:#4b6cff;color:white}.ok{color:#087f3d}.bad{color:#b42318}
+.staff{position:relative;height:230px;border:1px solid #ddd;border-radius:12px;margin:15px 0;background:#fff}
+.line{position:absolute;left:10%;right:5%;height:2px;background:#555}.staff .l1{top:70px}.staff .l2{top:90px}.staff .l3{top:110px}.staff .l4{top:130px}.staff .l5{top:150px}
+.note{position:absolute;width:30px;height:22px;border-radius:50%;padding:0;background:#eef1f7;transform:translate(-50%,-50%);font-size:12px}
+.keys{display:flex;justify-content:center;margin:10px 0}.key{width:52px;height:110px;border:1px solid #888;border-radius:0 0 8px 8px;background:white}.key small{display:block;margin-top:88px}
+</style></head><body><main>
+<div class="card"><h1>🎵 Musik-Quiz – Klasse 7</h1><p>14 Fragen · Punkte sammeln · Note 1–6</p><div class="bar"><i id="bar"></i></div><p id="prog"></p></div>
+<div id="app"></div></main>
+<script>
+const qs=[
+{t:"Dreieckshandel",q:"Was bezeichnet der Begriff Dreieckshandel?",o:["Handel zwischen Europa, Afrika und Amerika","Handel nur innerhalb Europas","Tausch von Instrumenten"],a:0},
+{t:"Sklaverei",q:"Wo mussten versklavte Menschen häufig unter Zwang arbeiten?",o:["Auf Plantagen","In Konzerthallen","In Musikschulen"],a:0},
+{t:"Spirituals",q:"Was sind Spirituals?",o:["Religiöse Lieder afroamerikanischer Menschen","Europäische Tänze","Instrumentalstücke ohne Gesang"],a:0},
+{t:"Gospel",q:"Was ist Gospel?",o:["Religiöse Musik, die sich aus Spirituals weiterentwickelte","Eine Opernform","Ein Marsch"],a:0},
+{t:"Worksongs",q:"Wozu dienten Worksongs unter anderem?",o:["Sie unterstützten den gemeinsamen Arbeitsrhythmus","Sie waren nur für Konzerte gedacht","Sie dienten zum Stimmen von Klavieren"],a:0},
+{t:"Dreiklänge",q:"Aus wie vielen verschiedenen Tönen besteht ein Dreiklang?",o:["3","2","5"],a:0},
+{t:"Dreiklang erkennen",q:"Welche Töne bilden C-Dur?",o:["C–E–G","C–D–F","D–F–A"],a:0},
+{t:"Dreiklang erkennen",q:"E–G–H ist …",o:["Dur","Moll"],a:1},
+{t:"Dreiklang erkennen",q:"D–F–A ist …",o:["Dur","Moll"],a:1},
+{t:"Dreiklang erkennen",q:"A–C–E ist …",o:["Dur","Moll"],a:1},
+{t:"Dreiklang bilden",q:"Bilde C-Dur. Klicke C, E und G an.",build:["C","E","G"]},
+{t:"Dreiklang bilden",q:"Bilde G-Dur. Klicke G, H und D an.",build:["G","H","D"]},
+{t:"Dreiklang bilden",q:"Bilde a-Moll. Klicke A, C und E an.",build:["A","C","E"]},
+{t:"Dreiklang bilden",q:"Bilde e-Moll. Klicke E, G und H an.",build:["E","G","H"]}
+];
+let n=0,score=0,locked=false,sel=new Set(),kind=null,root=null;
+const notes=["C","D","E","F","G","A","H"];
+function piano(){return '<div class="keys">'+notes.map(x=>'<div class="key"><small>'+x+'</small></div>').join('')+'</div>'}
+function staff(build){let y={C:170,D:160,E:150,F:140,G:130,A:120,H:110};return '<div class="staff">'+[70,90,110,130,150].map((v,i)=>'<div class="line l'+(i+1)+'"></div>').join('')+notes.map((x,i)=>'<button class="note '+(sel.has(x)?'selected':'')+'" style="left:'+(16+i*11)+'%;top:'+y[x]+'px" onclick="pick(\''+x+'\')">'+x+'</button>').join('')+'</div>'}
+function render(){locked=false;sel=new Set();kind=null;root=null;document.getElementById("bar").style.width=(n/qs.length*100)+"%";document.getElementById("prog").textContent="Frage "+(n+1)+" von "+qs.length;let x=qs[n];let h='<div class="card"><h2>'+x.t+'</h2><p>'+x.q+'</p>';
+if(x.build){h+=piano()+staff(true)+'<button class="primary" onclick="checkBuild()">Prüfen</button>'}
+else{h+=x.o.map((o,i)=>'<button class="choice" onclick="answer('+i+',this)">'+o+'</button>').join('')}
+if([6,7,8,9].includes(n)){h+='<hr><p><b>Zusatz:</b> Tippe die drei Töne des Dreiklangs an. Wähle danach Dur/Moll und den Grundton.</p>'+piano()+'<div>'+["C","D","E","F","G","A","H"].map(x=>'<button class="choice '+(sel.has(x)?'selected':'')+'" onclick="toggle(\''+x+'\',this)">'+x+'</button>').join('')+'</div><div>'+["Dur","Moll"].map(x=>'<button onclick="kind=\''+x+'\';this.classList.add(\'selected\')">'+x+'</button>').join('')+'</div><div>'+["C","D","E","F","G","A","H"].map(x=>'<button onclick="root=\''+x+'\';this.classList.add(\'selected\')">Grundton '+x+'</button>').join('')+'</div>'}
+h+='<p id="msg"></p></div>';document.getElementById("app").innerHTML=h}
+function next(correct){if(locked)return;locked=true;if(correct)score++;document.getElementById("msg").textContent=correct?"✅ Richtig!":"❌ Nicht ganz.";document.getElementById("msg").className=correct?"ok":"bad";setTimeout(()=>{n++;n<qs.length?render():finish()},650)}
+function answer(i,b){let x=qs[n];document.querySelectorAll(".choice").forEach(z=>z.disabled=true);b.classList.add("selected");next(i===x.a)}
+function pick(x){if(locked)return;sel.has(x)?sel.delete(x):sel.add(x);renderBuildOnly()}
+function renderBuildOnly(){let x=qs[n];let h='<div class="card"><h2>'+x.t+'</h2><p>'+x.q+'</p>'+piano()+staff(true)+'<button class="primary" onclick="checkBuild()">Prüfen</button><p id="msg"></p></div>';document.getElementById("app").innerHTML=h}
+function checkBuild(){let a=[...sel].sort(),b=[...qs[n].build].sort();next(JSON.stringify(a)===JSON.stringify(b))}
+function toggle(x,b){if(sel.has(x)){sel.delete(x);b.classList.remove("selected")}else{sel.add(x);b.classList.add("selected")}}
+function finish(){document.getElementById("bar").style.width="100%";let p=score/qs.length*100,note=p>=90?1:p>=80?2:p>=70?3:p>=60?4:p>=50?5:6;document.getElementById("app").innerHTML='<div class="card"><h2>🎉 Fertig!</h2><p><b>'+score+' / '+qs.length+' Punkte</b> ('+Math.round(p)+' %)</p><h2>Note: '+note+'</h2><button class="primary" onclick="location.reload()">Nochmal spielen</button></div>'}
+render();
+</script></body></html>
