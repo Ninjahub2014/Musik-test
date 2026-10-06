@@ -22,19 +22,24 @@ const qs=[
 {t:"Gospel",q:"Was ist Gospel?",o:["Religiöse Musik, die sich aus Spirituals weiterentwickelte","Eine Opernform","Ein Marsch"],a:0},
 {t:"Worksongs",q:"Wozu dienten Worksongs unter anderem?",o:["Sie unterstützten den gemeinsamen Arbeitsrhythmus","Sie waren nur für Konzerte gedacht","Sie dienten zum Stimmen von Klavieren"],a:0},
 {t:"Dreiklänge",q:"Aus wie vielen verschiedenen Tönen besteht ein Dreiklang?",o:["3","2","5"],a:0},
-{t:"Dreiklang erkennen",q:"Welche Töne bilden C-Dur?",o:["C–E–G","C–D–F","D–F–A"],a:0},
+{t:"Dreiklang erkennen",q:"Welche Töne bilden C-Dur?",o:["C–E–G","C–Es–G","D–F–A"],a:0},
+{t:"Dreiklang erkennen",q:"Welche Töne bilden Es-Dur?",o:["Es–G–B","E–G–H","Es–As–B"],a:0},
+{t:"Dreiklang erkennen",q:"Welche Töne bilden As-Dur?",o:["As–C–Es","A–C–E","As–B–Es"],a:0},
+{t:"Dreiklang erkennen",q:"Welche Töne bilden B-Dur?",o:["B–D–F","H–D–Fis","B–Es–F"],a:0},
 {t:"Dreiklang erkennen",q:"E–G–H ist …",o:["Dur","Moll"],a:1},
 {t:"Dreiklang erkennen",q:"D–F–A ist …",o:["Dur","Moll"],a:1},
 {t:"Dreiklang erkennen",q:"A–C–E ist …",o:["Dur","Moll"],a:1},
 {t:"Dreiklang bilden",q:"Bilde C-Dur. Klicke C, E und G an.",build:["C","E","G"]},
 {t:"Dreiklang bilden",q:"Bilde G-Dur. Klicke G, H und D an.",build:["G","H","D"]},
 {t:"Dreiklang bilden",q:"Bilde a-Moll. Klicke A, C und E an.",build:["A","C","E"]},
-{t:"Dreiklang bilden",q:"Bilde e-Moll. Klicke E, G und H an.",build:["E","G","H"]}
+{t:"Dreiklang bilden",q:"Bilde e-Moll. Klicke E, G und H an.",build:["E","G","H"]},
+{t:"Dreiklang bilden",q:"Bilde Es-Dur. Klicke Es, G und B an.",build:["Es","G","B"]},
+{t:"Dreiklang bilden",q:"Bilde As-Dur. Klicke As, C und Es an.",build:["As","C","Es"]}
 ];
 let n=0,score=0,locked=false,sel=new Set(),kind=null,root=null;
-const notes=["C","D","E","F","G","A","H"];
+const notes=["C","Cis","D","Es","E","F","Fis","G","As","A","B","H"];
 function piano(){return '<div class="keys">'+notes.map(x=>'<div class="key"><small>'+x+'</small></div>').join('')+'</div>'}
-function staff(build){let y={C:170,D:160,E:150,F:140,G:130,A:120,H:110};return '<div class="staff">'+[70,90,110,130,150].map((v,i)=>'<div class="line l'+(i+1)+'"></div>').join('')+notes.map((x,i)=>'<button class="note '+(sel.has(x)?'selected':'')+'" style="left:'+(16+i*11)+'%;top:'+y[x]+'px" onclick="pick(\''+x+'\')">'+x+'</button>').join('')+'</div>'}
+function staff(build){let y={C:170,Cis:170,D:160,Es:160,E:150,F:140,Fis:140,G:130,As:130,A:120,B:120,H:110};return '<div class="staff">'+[70,90,110,130,150].map((v,i)=>'<div class="line l'+(i+1)+'"></div>').join('')+notes.map((x,i)=>'<button class="note '+(sel.has(x)?'selected':'')+'" style="left:'+(16+i*11)+'%;top:'+y[x]+'px" onclick="pick(\''+x+'\')">'+x+'</button>').join('')+'</div>'}
 function render(){locked=false;sel=new Set();kind=null;root=null;document.getElementById("bar").style.width=(n/qs.length*100)+"%";document.getElementById("prog").textContent="Frage "+(n+1)+" von "+qs.length;let x=qs[n];let h='<div class="card"><h2>'+x.t+'</h2><p>'+x.q+'</p>';
 if(x.build){h+=piano()+staff(true)+'<button class="primary" onclick="checkBuild()">Prüfen</button>'}
 else{h+=x.o.map((o,i)=>'<button class="choice" onclick="answer('+i+',this)">'+o+'</button>').join('')}
